@@ -4,7 +4,7 @@ env_args:
   key: null
   time_limit: 25
   pretrained_wrapper: null
-  record_video: False
+  record_video: True
 
 test_greedy: True
 test_nepisode: 100

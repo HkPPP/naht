@@ -294,12 +294,12 @@ if __name__ == "__main__":
     EVAL_SEED = 394820
 
     DEBUG = False # toggle this to debug the script without running the evaluation
-    USE_CONDOR = True # toggle this to run the evaluation on condor
+    USE_CONDOR = False # toggle this to run the evaluation on condor
     base_path = USER_INFO['base_results_path']
     
-    expt_dir = "5v6"
-    num_agents = 5
-    env_nickname = "5v6"
+    # expt_dir = "5v6"
+    # num_agents = 5
+    # env_nickname = "5v6"
 
     # expt_dir = "8v9" 
     # num_agents = 8
@@ -313,9 +313,9 @@ if __name__ == "__main__":
     # num_agents = 3
     # env_nickname = "3sv5z"
 
-    # expt_dir = "mpe-pp/ts=100_shape=0.01"
-    # num_agents = 3
-    # env_nickname = "mpe-pp"
+    expt_dir = "mpe-pp/ts=100_shape=0.01"
+    num_agents = 3
+    env_nickname = "mpe-pp"
 
 
     algorithms = [
@@ -368,6 +368,7 @@ if __name__ == "__main__":
                     # target_algs_seeds=["112358", "1285842", "78590", "38410", "93718"], # for alt train/test split 
                     src_config_path="src/config/open/open_eval_default.yaml",
                     dest_config_folder=f"src/config/temp/temp_{datetime.datetime.now().strftime('%m-%d-%H-%M-%S')}/",
+                    dest_results_name="mpe_dry_run",
                     # dest_results_name="ood_generalization",
                     # dest_results_name="in_distr_eval",
                     # dest_results_name="ood_gen_vp",

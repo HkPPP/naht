@@ -22,6 +22,7 @@ dependencies = [
     "protobuf==3.20.*",
     "py>=1.11.0",
     "pygame>=2.6.1",
+    "pyglet==1.5.27",
     "pyparsing>=3.2.5",
     "pytablewriter>=1.2.1",
     "pytest>=9.0.1",
