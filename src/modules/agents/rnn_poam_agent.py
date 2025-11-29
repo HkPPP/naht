@@ -6,12 +6,13 @@ from utils.mlp import MLPBase
 from utils.mappo_util import init_rnn, init_module
 from utils.encoder_decoder import build_encoder_inputs
 
+from modules.agents.quantum_policy_head import QuantumPolicyHead
 
-class RNNPOAMAgent(nn.Module):
+class QPHPOAMAgent(nn.Module):
     '''Identical to RNNNormAgent except possesses an encoder.
     '''
     def __init__(self, input_shape, args):
-        super(RNNPOAMAgent, self).__init__()
+        super(QPHPOAMAgent, self).__init__()
         self.args = args
         self.n_agents = args.n_agents
         self.input_size = input_shape
@@ -36,7 +37,22 @@ class RNNPOAMAgent(nn.Module):
             self.rnn_norm = nn.LayerNorm(self.hidden_dim)
         else:
             self.rnn = init_module(nn.Linear(self.hidden_dim, self.hidden_dim))
-        self.fc2 = init_module(nn.Linear(self.hidden_dim, args.n_actions))
+
+
+        self.use_quantum_policy = getattr(self.args, "use_quantum_policy", False)
+
+        if self.use_quantum_policy:
+            # Quantum policy head (PennyLane VQC)
+            self.quantum_policy = QuantumPolicyHead(
+                hidden_dim=self.hidden_dim,
+                n_actions=args.n_actions,
+                n_qubits=getattr(self.args, "q_n_qubits", 4),
+                n_layers=getattr(self.args, "q_n_layers", 2),
+                q_device=getattr(self.args, "q_device", "default.qubit"),
+            )
+        else:
+            # Original classical linear policy head
+            self.fc2 = init_module(nn.Linear(self.hidden_dim, args.n_actions))
 
 
     def init_hidden(self, batch_size):
@@ -93,7 +109,10 @@ class RNNPOAMAgent(nn.Module):
         else:
             h_norm = h_out = F.relu(self.rnn(x))
         
-        q = self.fc2(h_norm)
+        if self.use_quantum_policy:
+            q = self.quantum_policy(h_norm)    # [B*T*n_agents, n_actions]
+        else:
+            q = self.fc2(h_norm)               # original behavior
         h_e = h_e.view(*ed_hidden_batch_dim)
         h_out = h_out.view(*hidden_batch_dim)
         return q.view(*out_batch_dim, -1), h_e, h_out

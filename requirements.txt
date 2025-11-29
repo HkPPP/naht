@@ -34,3 +34,6 @@ urllib3
 websocket-client
 whichcraft
 wrapt
+
+pennylane>=0.36
+pennylane-lightning>=0.36
