@@ -29,25 +29,24 @@ class QuantumPolicyHead(nn.Module):
         # Compress hidden state to n_qubits features
         self.embed = nn.Linear(hidden_dim, n_qubits)
 
-        # PennyLane device
+        # 1) Create device
         dev = qml.device(q_device, wires=n_qubits)
 
-        # Define variational circuit
+        # 2) Define the circuit and wrap it as a QNode with interface="torch"
         def circuit(inputs, weights):
-            # inputs: shape [n_qubits]
+            # inputs: [n_qubits]
             qml.AngleEmbedding(inputs, wires=range(n_qubits))
             qml.StronglyEntanglingLayers(weights, wires=range(n_qubits))
-            # Expectation values as classical outputs
             return [qml.expval(qml.PauliZ(i)) for i in range(n_qubits)]
 
-        # Trainable parameter shapes for the VQC
         weight_shapes = {"weights": (n_layers, n_qubits, 3)}
 
-        # Wrap circuit as a Torch module
+        qnode = qml.QNode(circuit, dev, interface="torch")
+
+        # 3) Build TorchLayer from the QNode (NO device kwarg, NO init_method)
         self.q_layer = qml.qnn.TorchLayer(
-            circuit,
+            qnode,
             weight_shapes,
-            device=dev,  # <-- no init_method
         )
 
         # Map quantum features -> action logits
