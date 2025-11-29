@@ -1,16 +1,15 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 import pennylane as qml
 
 
 class QuantumPolicyHead(nn.Module):
     """
-    Small variational quantum circuit wrapped as a PyTorch module.
+    Variational quantum circuit (VQC) wrapped as a PyTorch module.
 
-    Input:  [B, hidden_dim]  (output of RNN + agent-modeling encoder)
-    Output: [B, n_actions]   (policy logits)
+    Input:  [B*, hidden_dim]
+    Output: [B*, n_actions] (policy logits)
     """
 
     def __init__(
@@ -27,10 +26,10 @@ class QuantumPolicyHead(nn.Module):
         self.n_actions = n_actions
         self.n_qubits = n_qubits
 
-        # Compress hidden state to n_qubits real values
+        # Compress hidden state to n_qubits features
         self.embed = nn.Linear(hidden_dim, n_qubits)
 
-        # Define quantum device
+        # PennyLane device
         dev = qml.device(q_device, wires=n_qubits)
 
         # Define variational circuit
@@ -38,33 +37,33 @@ class QuantumPolicyHead(nn.Module):
             # inputs: shape [n_qubits]
             qml.AngleEmbedding(inputs, wires=range(n_qubits))
             qml.StronglyEntanglingLayers(weights, wires=range(n_qubits))
-            # Expectation values as classical features
+            # Expectation values as classical outputs
             return [qml.expval(qml.PauliZ(i)) for i in range(n_qubits)]
 
+        # Trainable parameter shapes for the VQC
         weight_shapes = {"weights": (n_layers, n_qubits, 3)}
 
-        # Wrap as a TorchLayer
+        # Wrap circuit as a Torch module
         self.q_layer = qml.qnn.TorchLayer(
             circuit,
             weight_shapes,
-            init_method=qml.init.strong_ent_layers_uniform,
-            device=dev,
+            device=dev,  # <-- no init_method
         )
 
-        # Map quantum outputs -> action logits
+        # Map quantum features -> action logits
         self.out = nn.Linear(n_qubits, n_actions)
 
     def forward(self, h: torch.Tensor) -> torch.Tensor:
         """
-        h: [B, hidden_dim] (or [B*T, hidden_dim] after Mac flattening)
+        h: [B*, hidden_dim] (e.g., flattened [batch * time * n_agents, hidden_dim])
         """
-        # Project to qubit-sized vector
+        # Project to qubit inputs
         x = self.embed(h)
         x = torch.tanh(x)
 
-        # Quantum layer expects shape [..., n_qubits]
+        # Quantum layer: returns [B*, n_qubits]
         q_out = self.q_layer(x)
-        # q_out: [..., n_qubits] of expectation values in [-1, 1]
 
-        logits = self.out(q_out)
+        # Classical readout
+        logits = self.out(q_out)  # [B*, n_actions]
         return logits
