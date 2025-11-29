@@ -8,11 +8,11 @@ from utils.encoder_decoder import build_encoder_inputs
 
 from modules.agents.quantum_policy_head import QuantumPolicyHead
 
-class QPHPOAMAgent(nn.Module):
+class RNNPOAMAgent(nn.Module):
     '''Identical to RNNNormAgent except possesses an encoder.
     '''
     def __init__(self, input_shape, args):
-        super(QPHPOAMAgent, self).__init__()
+        super(RNNPOAMAgent, self).__init__()
         self.args = args
         self.n_agents = args.n_agents
         self.input_size = input_shape
