@@ -14,7 +14,8 @@ test_greedy: True # Use greedy evaluation (if False, will set epsilon floor to 0
 log_interval: 50000 # Log summary of stats after every {} timesteps
 runner_log_interval: 50000 # Log runner stats (not test stats) every {} timesteps
 learner_log_interval: 50000 # Log training stats every {} timesteps
-t_max: 20050000 # Stop running after this many timesteps
+# t_max: 20050000 # Stop running after this many timesteps
+t_max: 1200000 # Stop running after this many timesteps => 10 hours at 100 step envs (~3s/100step)
 use_cuda: True # Use gpu by default unless it isn't available
 buffer_cpu_only: True # If true we won't keep all of the replay buffer in vram
 log_discounted_return: False # whether to log discounted return

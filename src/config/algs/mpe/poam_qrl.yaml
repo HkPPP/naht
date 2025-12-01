@@ -29,7 +29,7 @@ critic_type: "poam_critic"
 # Turn this on to route RNNPOAMAgent through QuantumPolicyHead
 use_quantum_policy: True
 
-# QNN hyperparameters (tune as needed)
+# QNN hyperparameters 
 q_n_qubits: 4
 q_n_layers: 2
 q_device: "default.qubit"
