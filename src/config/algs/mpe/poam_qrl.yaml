@@ -8,7 +8,7 @@ runner: "parallel"
 
 buffer_size: 128
 batch_size: 128
-batch_size_run: 8
+batch_size_run: 16
 
 save_extra_stats: False
 
