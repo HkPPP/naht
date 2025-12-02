@@ -219,7 +219,7 @@ def run_sequential(args, logger):
                 os.makedirs(save_path, exist_ok=True)
                 # make json file with best_test_return
                 with open(os.path.join(save_path, "best_info.json"), 'w') as f:
-                    json.dump({"best_test_return": best_test_return, "best_ts": str(runner.t_env), "best_episode": str(episode)}, f)
+                    json.dump({"best_test_return": best_test_return, "best_ts": str(runner.t_env), "best_episode": str(runner.t_ep)}, f)
                 logger.console_logger.info("Saving models to {}".format(save_path))
                 learner.save_models(save_path)
         
