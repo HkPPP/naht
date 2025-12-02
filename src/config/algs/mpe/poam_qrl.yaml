@@ -6,9 +6,9 @@ mask_before_softmax: True
 
 runner: "parallel"
 
-buffer_size: 256
+buffer_size: 128
+batch_size: 128
 batch_size_run: 8
-batch_size: 256
 
 save_extra_stats: False
 
@@ -30,8 +30,8 @@ critic_type: "poam_critic"
 use_quantum_policy: True
 
 # QNN hyperparameters 
-q_n_qubits: 4
-q_n_layers: 2
+q_n_qubits: 2
+q_n_layers: 1
 q_device: "default.qubit"
 
 # poam only
